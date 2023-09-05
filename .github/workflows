@@ -1,0 +1,40 @@
+name: Countdown to 2024 Olympics
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # This will run the script every day at midnight
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+
+      - name: Update countdown
+        run: |
+          python3 -c "
+import datetime
+
+# Calculate days until the Olympics
+olympics_date = datetime.date(2024, 7, 26)
+today = datetime.date.today()
+remaining_days = (olympics_date - today).days
+
+# Update the README
+with open('README.md', 'r') as file:
+    readme = file.read()
+
+readme = readme.replace('**PLACEHOLDER**', f'**{remaining_days}**')
+
+with open('README.md', 'w') as file:
+    file.write(readme)
+"
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "Automated Countdown"
+          git config user.email "actions@github.com"
+          git add README.md
+          git commit -m "Update countdown to 2024 Olympics" || echo "No changes to commit"
+          git push
